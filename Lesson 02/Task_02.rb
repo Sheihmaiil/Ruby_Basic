@@ -1,7 +1,7 @@
 a = []
 
-for i in 1..20
-  a << i
+for i in 2..20
+  a << i * 5
 end
 
 puts "#{a}"
