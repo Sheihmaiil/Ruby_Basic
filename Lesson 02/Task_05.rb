@@ -11,23 +11,21 @@ days = 0
   
 for i in 0..mounth-2
   days += mounth_length[i ]
-  print days
-  gets
 end
 
 days += data
 
 if days > 60
 
-  if year/4.0 == year/4
+  if year%4 == 0
     days += 1
   end  
 
-  if year/100.0 == year/100
+  if year%100 == 0
     days -= 1
   end
 
-  if year/400.0 == year/400
+  if year%400 == 0
     days += 1
   end
 

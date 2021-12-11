@@ -17,9 +17,7 @@ loop do
   my_hash[product] = {price => quantity}
 end
 
-puts ""
 puts "#{my_hash}"
-puts ""
 
 total = 0
 count = 1
@@ -30,10 +28,14 @@ my_hash.each {|keys, value|
   
   tmp_array = value.shift
 
-  puts "Цена за ед.: #{tmp_array[0].to_f}, количество товара: #{tmp_array[1].to_f}, Стоимость: #{tmp_array[0].to_f * tmp_array[1].to_f}"
-  puts ""
+  a1 = tmp_array[0].to_f
+  a2 = tmp_array[1].to_f
+  a3 = (a1 * a2)
+  a3 = a3.round(2)
 
-  total += tmp_array[0].to_f * tmp_array[1].to_f
+  puts "Цена за ед.: #{a1}, количество товара: #{a2}, Стоимость: #{a3}"
+  
+  total += a3
   count += 1
   
   }
