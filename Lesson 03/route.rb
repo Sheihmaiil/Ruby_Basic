@@ -19,8 +19,12 @@ class Route
 
   end
 
-  def stations_list
+  def stations_list_to_scr #Вывод списка станций на консоль
     route.each {|station| puts "#{station}"}
+  end
+
+  def stations_list
+    @route
   end
 
 end
