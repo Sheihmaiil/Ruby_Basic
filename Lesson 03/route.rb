@@ -23,9 +23,5 @@ class Route
     route.each {|station| puts "#{station}"}
   end
 
-  def stations_list
-    @route
-  end
-
 end
 

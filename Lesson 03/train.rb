@@ -1,13 +1,13 @@
 class Train
   attr_accessor :train
-  attr_accessor :train_id
+  attr_accessor :train_name
   attr_accessor :train_type
   attr_accessor :current_station
   attr_accessor :current_speed
   attr_accessor :wagon_qty
 
-  def initialize(train_id, train_type, wagon_qty, route = '')
-    @train = train_id
+  def initialize(train_name, train_type, wagon_qty, route = '')
+    @train = train_name
     @train_type = train_type
     @wagon_qty = wagon_qty
     @route = route
@@ -17,7 +17,7 @@ class Train
 
   def change_speed(speed) #изменение скорости может быть отрицательным
     if @current_speed + speed < 0
-      puts "Нельзя уменьшитьскорость меньше нуля!"
+      puts "Нельзя уменьшить скорость меньше нуля!"
     else
       @current_speed += speed
     end
@@ -49,11 +49,11 @@ class Train
       puts "Перемещение невозможно - не задан маршрут!"
     elsif qty.abs > 1
       puts "Перемешение невозможно более чем на одну станцию!"
-    elseif @current_station + qty < 0
+    elsif @current_station + qty < 0
       puts "Перемещение невозможно - достигнута начальная станция!"
-    elsif @current_station + qty > @route.size
+    elsif @current_station + qty > @route.stations_list.size
       puts "Перемещение невозможно - достигнута конечная станция!"
-    els
+    else
       @current_station += qty
     end
   end

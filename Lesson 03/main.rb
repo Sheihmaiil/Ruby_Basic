@@ -1,5 +1,7 @@
+
 load './route.rb'
 load './train.rb'
+load './station.rb'
 
 my_route = Route.new('111', '999')
 my_route.add_station('222')

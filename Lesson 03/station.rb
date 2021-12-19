@@ -1,44 +1,61 @@
-class Station
-  attr_accessor :station
+class Train
+  attr_accessor :train
+  attr_accessor :train_id
+  attr_accessor :train_type
+  attr_accessor :current_station
+  attr_accessor :current_speed
+  attr_accessor :wagon_qty
 
-  def initialize(station)
-    @station = station
-    @trains_list = []
-    @trains_type = []
+  def initialize(train_id, train_type, wagon_qty, route = '')
+    @train = train_id
+    @train_type = train_type
+    @wagon_qty = wagon_qty
+    @route = route
+    @current_station = 0
+    @current_speed = 0
   end
 
-  def trains_list(train_type)
-    if @trains_list.empty?
-      puts 'На станции нет поездов'
+  def change_speed(speed) #изменение скорости может быть отрицательным
+    if @current_speed + speed < 0
+      puts "Нельзя уменьшитьскорость меньше нуля!"
     else
-      if train_type == "ВСЕ"
-        @trains_list.each {|x| puts "#{x}"}
-      else
-        for i in 0..@trains_list.size
-          if train_type == @trains_type[i]
-            puts "#{@trains_list[i]}"
-          end
-        end
-      end
+      @current_speed += speed
     end
   end
 
-  def add_train(train_id, train_type)
-    @trains_list << train_id
-    @trains_type << train_type
+  def stop
+    @current_speed = 0
   end
 
-  def del_train(train_id)
-    index = @trains_list.index(train_id)
-
-    if index != nil
-      @trains_list.slice!(index)
-      @trains_type.slice!(index)
+  def change_wagon_qty(wagon) #количество вагонов может быть отрицательным
+    if @current_speed != 0
+      puts "Операция невозможно - поезд в движении!"
+    elsif wagon.abs > 1
+      puts "Операция невозможна - вагонов больше одного!"
+    elsif @wagon_qty + wagon < 0
+      puts "Операция невозможна - вагонов в составе нет!"
     else
-      puts "На станции нет поездов #{train_id}"
-    end
-
+      @wagon_qty += wagon
+    end      
   end
- 
+
+  def add_route(route)
+    @current_station = 0
+    @route = route
+  end
+
+  def move_train(qty) #количество станций может быть отрицательным
+    if @route == ''
+      puts "Перемещение невозможно - не задан маршрут!"
+    elsif qty.abs > 1
+      puts "Перемешение невозможно более чем на одну станцию!"
+    elseif @current_station + qty < 0
+      puts "Перемещение невозможно - достигнута начальная станция!"
+    elsif @current_station + qty > @route.size
+      puts "Перемещение невозможно - достигнута конечная станция!"
+    els
+      @current_station += qty
+    end
+  end
+
 end
-
