@@ -79,11 +79,13 @@ class Train
   end
 
   def move_train_forward
-    @current_station_index += 1 if @route.nil? && (@current_station_index + 1 != @route.stations_list.size)
+    #@current_station_index += 1 if @route.nil? && (@current_station_index + 1 != @route.stations_list.size)
+    @current_station_index += 1 if next_station
   end
 
   def move_train_backward
-    @current_station_index -= 1 if @route.nil? && (@current_station_index != 0)
+    #@current_station_index -= 1 if @route.nil? && (@current_station_index != 0)
+    @current_station_index -= 1 if previous_station
   end
 
   def current_station
