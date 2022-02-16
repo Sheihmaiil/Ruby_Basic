@@ -2,9 +2,6 @@ class Route
   attr_accessor :name, :stations_list
 
   def initialize(name, first_station, last_station)
-    if first_station.nil? || last_station.nil?
-      exit
-    end
     @name = name
     @stations_list = [first_station, last_station]
   end

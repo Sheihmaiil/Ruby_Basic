@@ -49,19 +49,19 @@ class Train
   end
 
   #
-  def move_train_forward_1
+  def move_train_forward_1(train)
     if next_station
-      current_station.del_train(name)
+      current_station.del_train(train)
       @current_station_index += 1
-      current_station.add_train(name)
+      current_station.add_train(train)
     end
   end
 
-  def move_train_backward_2
+  def move_train_backward_1(train)
     if previous_station
-      current_station.del_train(name)
+      current_station.del_train(train)
       @current_station_index -= 1
-      current_station.add_train(name)
+      current_station.add_train(train)
     end
   end
   #

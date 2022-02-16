@@ -12,8 +12,7 @@ class Menu
   CREATE_MENU = [
     "1. Создать станцию",
     "2. Создать поезд",
-    "3. Создать вагон",
-    "4. Создать маршрут",
+    "3. Создать маршрут",
     "0. В предыдущее меню"
   ]
 
@@ -30,12 +29,12 @@ class Menu
   ]
   
   OBJECTS_INFO = [
-    "1. Список станций", #надо дописать список поездов на станции
+    "1. Список станций/поездов на станциях", #надо дописать список поездов на станции
     "2. Список поездов",
     "3. Список маршутов",
     "0. В предыдущее меню"
   ]
-  
+
   def initialize
     @all_stations = []
     @all_trains = []
@@ -45,51 +44,33 @@ class Menu
   def found_station_by_name(name)
     counter = 0
     @all_stations.each do |i|
-      if i.name == name
-         break
-      end
+      break if i.name == name
       counter += 1
     end
     @all_stations[counter]
-  end
-
-  def found_train_by_name(name)
-    counter = 0
-    @all_trains.each do |i|
-      if i.name == name
-         break
-      end
-      counter += 1
-    end
-    @all_trains[counter]
-  end
-
-  def found_route_by_name(name)
-    counter = 0
-    @all_routes.each do |i|
-      if i.name == name
-         break
-      end
-      counter += 1
-    end
-    @all_routes[counter]
-  end
+  end   
 
   def stations_list()
+    counter = 0
     @all_stations.each do |i|
-      puts "#{i.name}"
+      puts "#{(counter + 1).to_s + '. ' + i.name}"
+      counter += 1
     end
   end
 
   def trains_list()
-    all_trains.each do |i|
-      puts "#{i.name}"
+    counter = 0
+    @all_trains.each do |i|
+      puts "#{(counter + 1).to_s + '. ' + i.name}"
+      counter += 1
     end
   end
 
   def routes_list()
-    all_routes.each do |i|
-      puts "#{i.name}"
+    counter = 0
+    @all_routes.each do |i|
+      puts "#{(counter + 1).to_s + '. ' + i.name}"
+      counter += 1
     end
   end
 
@@ -116,19 +97,21 @@ class Menu
             tr_type = gets.chomp
             @all_trains << Train.new(tr, tr_type)
           when "3"
-            print "Задайте тип вагона ('C' - cargo, 'P' - passenger): \n"
-            vg_type = gets.chomp
-            @all_wagons << Wagon.new(vg_type)
-          when "4"
             puts "Список станций:"
             stations_list()
-            puts "Введите имя первой станции"
-            tmp1 = gets.chomp
-            puts "Введите имя последней станции"
-            tmp2 = gets.chomp
-            
-            @all_routes << Route.new(tmp1 + ' - ' + tmp2, found_station_by_name(tmp1), found_station_by_name(tmp2))
-
+            puts "Введите номер первой станции"
+            first_station = gets.chomp.to_i
+            if (1..@all_stations.size).include?(first_station)
+              puts "Введите номер последней станции"
+              last_station = gets.chomp.to_i
+                if (1..@all_stations.size).include?(last_station)
+                  @all_routes << Route.new(@all_stations[first_station - 1].name + ' - ' + @all_stations[last_station - 1].name, @all_stations[first_station - 1], @all_stations[last_station - 1])
+                else
+                  puts "Введена неверная станция"
+                end
+            else
+              puts "Введена неверная станция"
+            end
           end  
         end
       when "2" #Редактирование объектов - EDIT_MENU
@@ -137,80 +120,131 @@ class Menu
           choice = gets.chomp
           case choice
           when "0" then break
-          when "1"
+          when "1" #Добавить станцию в маршрут
             puts "Список маршрутов"
             routes_list()
-            puts "Введите маршрут"
-            tmp1 = gets.chomp
-            tmp2 = found_route_by_name(tmp1)
-            puts "Список станций"
-            stations_list()
-            puts "Ведите имя станции"
-            tmp3 =gets.chomp
-            tmp4 = found_station_by_name(tmp3)
-            tmp2.add_station(tmp4)
-          when "2"
+            puts "Введите номер маршрута"
+            route_number = gets.chomp.to_i
+            if (1..@all_routes.size).include?(route_number)            
+              curr_route = @all_routes[route_number - 1]
+              puts "Список станций"
+              stations_list()
+              puts "Ведите  номер станции"
+              station_number = gets.chomp.to_i
+              if (1..@all_stations.size).include?(station_number)
+                curr_route.add_station(@all_stations[station_number - 1])
+              else
+                puts "Введена неверная станция"
+              end
+            else
+              puts "Введен неверный маршрут"
+            end
+          when "2" #Удалить станцию из маршрута
             puts "Список маршрутов"
             routes_list()
-            puts "Введите маршрут"
-            tmp1 = gets.chomp
-            tmp2 = found_route_by_name(tmp1)
-            puts "Список станций"
-            tmp2.stations_list.each do |i|
-              puts "#{i.name}"
-            end
-            puts "Ведите имя станции"
-            tmp3 = gets.chomp
-            tmp4 = found_station_by_name(tmp3)
-            tmp2.del_station(tmp4)
-          when "3"
-            puts "Список поездов"
-            trains_list()
-            puts "Введите поезд"
-            tmp1 = gets.chomp
-            tmp2 = found_train_by_name(tmp1)
-            if tmp2.type == "C"
-              tmp2.add_wagon(WagonCargo.new)
+            puts "Введите номер маршрута"
+            route_number = gets.chomp.to_i
+            if (1..@all_routes.size).include?(route_number)            
+              curr_route = @all_routes[route_number - 1]
+              puts "Список станций"
+              stations_list()
+              puts "Ведите номер станции"
+              station_number = gets.chomp.to_i
+              if (1..@all_stations.size).include?(station_number)
+                puts "#{curr_route}"
+                curr_route.del_station(@all_stations[station_number - 1])
+              else
+                puts "Введена неверная станция"
+              end
             else
-              tmp2.add_wagon(WagonPass.new)
-            end
-          when "4"
+              puts "Введен неверный маршрут"
+            end            
+          when "3" #Добавить вагон в поезд
             puts "Список поездов"
             trains_list()
-            puts "Введите поезд"
-            tmp1 = gets.chomp
-            found_train_by_name(tmp1).del_wagon()         
-          when "5"
+            puts "Введите номер поезда"
+            train_number = gets.chomp.to_i
+              if (1..@all_trains.size).include?(train_number) 
+                if all_trains[train_number - 1].type == "C"
+                  all_trains[train_number - 1].add_wagon(WagonCargo.new)
+                else
+                  all_trains[train_number - 1].add_wagon(WagonPass.new)
+                end
+              else
+                puts "Введен неверный поезд"
+              end
+          when "4" #Удалить вагон из поезда
             puts "Список поездов"
             trains_list()
-            puts "Введите поезд"
-            tmp1 = gets.chomp
-            tmp2 = found_train_by_name(tmp1)
-            ###
-            puts "qqq" if tmp2.nil?
-            puts "Список маршрутов"
-            routes_list()
-            puts "Введите маршрут"
-            tmp3 = gets.chomp
-            tmp4 = found_route_by_name(tmp3)
-            if tmp2.nil?
+            puts "Введите номер поезда"
+            train_number = gets.chomp.to_i
+            if (1..@all_trains.size).include?(train_number)
+              all_trains[train_number - 1].del_wagon()
             else
-              tmp2.add_route(tmp4)
-              tmp4.stations_list[0].add_train(tmp2)
+              puts "Введен неверный поезд"
             end
-          when "6"
+          when "5" #Присвоить маршрут поезду
             puts "Список поездов"
             trains_list()
-            puts "Введите поезд"
-            tmp1 = gets.chomp
-            tmp2 = found_train_by_name(tmp1)
-            puts "#{tmp2.route.nil?}" if tmp2.route.nil?
-            if tmp2.route.nil?
+            puts "Введите номер поезда"
+            train_number = gets.chomp.to_i
+            if (1..@all_trains.size).include?(train_number)              
+              puts "Список маршрутов"
+              routes_list()
+              puts "Введите маршрут"
+              route_number = gets.chomp.to_i
+              if (1..@all_routes.size).include?(route_number)            
+                curr_route = @all_routes[route_number - 1]
+                @all_trains[train_number - 1].add_route(curr_route)
+                curr_route.stations_list[0].add_train(@all_trains[train_number - 1])
+              else
+                puts "Введен неверный маршрут"
+              end
             else
-              #как удалить из station.trains_list
-              tmp2.del_route
+              puts "Введен неверный поезд"
             end
-
+          when "6" #Отменить маршрут у поезда
+            puts "Список поездов"
+            trains_list()
+            puts "Введите номер поезда"
+            train_number = gets.chomp.to_i
+            if (1..@all_trains.size).include?(train_number) 
+              if @all_trains[train_number - 1].route.nil?
+                puts "Поезду не присвоен маршрут"
+              else
+                @all_trains[train_number - 1].del_route
+              end
+            else
+              puts "Введен неверный поезд"
+            end
+          when "7" #Переместить поезд вперед по маршруту
+            puts "Список поездов"
+            trains_list()
+            puts "Введите номер поезда"
+            train_number = gets.chomp.to_i
+            if (1..@all_trains.size).include?(train_number) 
+              if @all_trains[train_number - 1].route.nil?
+                puts "Поезду не присвоен маршрут"
+              else ###
+                @all_trains[train_number - 1].move_train_forward_1(@all_trains[train_number - 1])
+              end
+            else
+              puts "Введен неверный поезд"
+            end
+          when "8" #Переместить поезд назад по маршруту
+            puts "Список поездов"
+            trains_list()
+            puts "Введите номер поезда"
+            train_number = gets.chomp.to_i
+            if (1..@all_trains.size).include?(train_number) 
+              if @all_trains[train_number - 1].route.nil?
+                puts "Поезду не присвоен маршрут"
+              else ###
+                @all_trains[train_number - 1].move_train_backward_1(@all_trains[train_number - 1])
+              end
+            else
+              puts "Введен неверный поезд"
+            end
           end
         end
 
@@ -221,16 +255,20 @@ class Menu
           case choice
           when "0" then break
           when "1"
-            stations_list()
+            all_stations.each do |station|
+              puts "#{station.name}"
+              if station.trains_list.size == 0
+                puts "   На станции нет поездов"
+              else
+                station.trains_list.each do |train|
+                  puts "   #{train.name}"
+                end
+              end
+            end
           when "2"
             trains_list()
           when "3"
-            all_routes.each do |i|
-              puts "#{i.name}"
-              i.stations_list.each do |j|
-                puts "#{j.name}"
-              end
-            end
+            routes_list()
           end
         end
       when "4"
