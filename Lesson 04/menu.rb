@@ -90,7 +90,7 @@ class Menu
           when "0" then break
           when "1" #Добавить станцию в маршрут
             puts "Список маршрутов"
-            routes_list()
+            num_list(@all_routes)
             puts "Введите номер маршрута"
             route_number = must_be_int()
             curr_route = @all_routes[route_number - 1]
@@ -136,10 +136,10 @@ class Menu
             train_number = must_be_int()
             curr_train = @all_trains[train_number - 1]
               if curr_train
-                if all_trains[train_number - 1].type == "C"
-                  all_trains[train_number - 1].add_wagon(WagonCargo.new)
+                if @all_trains[train_number - 1].type == "C"
+                  @all_trains[train_number - 1].add_wagon(WagonCargo.new)
                 else
-                  all_trains[train_number - 1].add_wagon(WagonPass.new)
+                  @all_trains[train_number - 1].add_wagon(WagonPass.new)
                 end
               else
                 puts "Введен неверный поезд"
@@ -151,7 +151,7 @@ class Menu
             train_number = must_be_int()
             curr_train = @all_trains[train_number - 1]
             if curr_train
-              all_trains[train_number - 1].del_wagon()
+              @all_trains[train_number - 1].del_wagon()
             else
               puts "Введен неверный поезд"
             end
@@ -184,10 +184,7 @@ class Menu
             train_number = must_be_int()
             curr_train = @all_trains[train_number - 1]
             if curr_train
-              #puts "#{curr_train.name}"
-              #puts "#{curr_train.route.name}"
-              #puts "#{curr_train.route.class}"
-              if curr_train.route.nil? ###Вопрос - не работает с условием curr_train.route
+              if curr_train.route.nil?
                 puts "Поезду не присвоен маршрут"
               else
                 curr_train.current_station.del_train(curr_train)
@@ -279,38 +276,35 @@ class Menu
       end
     end
   end
-end
 
-private 
+  private 
 
-attr_reader :all_stations, :all_trains, :all_wagons, :all_routes
+  attr_reader :all_stations, :all_trains, :all_routes
 
-def num_list(arr)
-  counter = 0
-  arr.each do |i|
-    puts "#{(counter + 1).to_s + '. ' + i.name}"
-    counter += 1
+  def num_list(arr)
+    counter = 0
+    arr.each do |i|
+      puts "#{(counter + 1).to_s + '. ' + i.name}"
+      counter += 1
+    end
   end
-end
 
-def must_be_int()
-  i = "" #Почему без инициализации выдает ошибку что не знает переменной i???
-  loop do
-    i = gets.chomp
-    if i.to_i.to_s == i
-      break
-    else
+  def must_be_int()
+    loop do
+      result = Integer(gets.chomp)
+      return result
+  rescue ArgumentError
       puts "Введенное значение долно быть числом!"
     end
   end
-  i.to_i
-end
 
-def found_station_by_name(name)
-  counter = 0
-  @all_stations.each do |i|
-    break if i.name == name
-    counter += 1
+  def found_station_by_name(name)
+    counter = 0
+    @all_stations.each do |i|
+      break if i.name == name
+      counter += 1
+    end
+    @all_stations[counter]
   end
-  @all_stations[counter]
-end   
+
+end

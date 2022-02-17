@@ -7,9 +7,6 @@ class Station
     @trains_list = []
   end
 
-  #private
-
-
   def add_train(train)
     @trains_list << train
   end
@@ -18,6 +15,8 @@ class Station
     @trains_list.delete(train)
   end
 
+  private
+  
   def trains_list_by_type(train_type)
     @trains_list.select do |train|
       train.type == train_type

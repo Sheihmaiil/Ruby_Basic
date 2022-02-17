@@ -23,11 +23,9 @@ class Train
 
   def add_wagon(wagon)
     @wagons << wagon if @current_speed.zero? && wagon.type == type
-    #нужна проверка на повторное добавление того же вагона???
   end
 
-  def del_wagon() #wagon)
-    #@wagons.delete(wagon) if @current_speed.zero?
+  def del_wagon()
     @wagons.delete_at(-1) if @current_speed.zero?
   end
 
@@ -49,18 +47,18 @@ class Train
   end
 
   def move_train_backward
-    puts "В трейне"
     if previous_station
       current_station.del_train(self)
       @current_station_index -= 1
       current_station.add_train(self)
     end
   end
-  #
 
   def current_station
     @route.stations_list[@current_station_index]
   end
+
+  private
 
   def previous_station
     return if @current_station_index.zero?
