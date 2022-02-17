@@ -41,27 +41,19 @@ class Train
   end
 
   def move_train_forward
-    @current_station_index += 1 if next_station
-  end
-
-  def move_train_backward
-    @current_station_index -= 1 if previous_station
-  end
-
-  #
-  def move_train_forward_1(train)
     if next_station
-      current_station.del_train(train)
+      current_station.del_train(self)
       @current_station_index += 1
-      current_station.add_train(train)
+      current_station.add_train(self)
     end
   end
 
-  def move_train_backward_1(train)
+  def move_train_backward
+    puts "В трейне"
     if previous_station
-      current_station.del_train(train)
+      current_station.del_train(self)
       @current_station_index -= 1
-      current_station.add_train(train)
+      current_station.add_train(self)
     end
   end
   #

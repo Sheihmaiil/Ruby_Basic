@@ -6,29 +6,3 @@ require_relative 'route'
 
 qqq = Menu.new
 qqq.start
-
-puts "Список поездов"
-#puts qqq.all_trains.size
-qqq.all_trains.each do |i|
-  puts "#{i.name}"
-  puts "#{i.wagons.size}"
-end
-gets.chomp
-
-puts "Список станций"
-#puts qqq.all_stations.size
-qqq.all_stations.each do |i|
-  puts "#{i.name}"
-end
-gets.chomp
-
-puts "Список маршрутов"
-qqq.all_routes.each do |i|
-  puts "#{i.name}"
-  i.stations_list.each do |j|
-    puts "#{j.name}"
-  end
-end
-
-#puts "Забавная попытка"
-#puts "#{qqq.found_station_by_name("Зеленый Дол").name}"

@@ -1,5 +1,4 @@
 class Menu
-  attr_reader :all_stations, :all_trains, :all_wagons, :all_routes
 
   MAIN_MENU = [
     "1. Создать новый объект",
@@ -29,9 +28,9 @@ class Menu
   ]
   
   OBJECTS_INFO = [
-    "1. Список станций/поездов на станциях", #надо дописать список поездов на станции
+    "1. Список станций/поездов на станциях",
     "2. Список поездов",
-    "3. Список маршутов",
+    "3. Список маршутов/станций в маршруте",
     "0. В предыдущее меню"
   ]
 
@@ -39,39 +38,6 @@ class Menu
     @all_stations = []
     @all_trains = []
     @all_routes = []
-  end
-
-  def found_station_by_name(name)
-    counter = 0
-    @all_stations.each do |i|
-      break if i.name == name
-      counter += 1
-    end
-    @all_stations[counter]
-  end   
-
-  def stations_list()
-    counter = 0
-    @all_stations.each do |i|
-      puts "#{(counter + 1).to_s + '. ' + i.name}"
-      counter += 1
-    end
-  end
-
-  def trains_list()
-    counter = 0
-    @all_trains.each do |i|
-      puts "#{(counter + 1).to_s + '. ' + i.name}"
-      counter += 1
-    end
-  end
-
-  def routes_list()
-    counter = 0
-    @all_routes.each do |i|
-      puts "#{(counter + 1).to_s + '. ' + i.name}"
-      counter += 1
-    end
   end
 
   def start()
@@ -86,29 +52,31 @@ class Menu
           choice = gets.chomp
           case choice
           when "0" then break
-          when "1"
+          when "1" #Создать станцию
             print "Введите название станции: \n"
             st = gets.chomp
             @all_stations << Station.new(st)
-          when "2"
+          when "2" #Создать поезд
             print "Введите название поезда: \n"
             tr = gets.chomp
             print "Задайте тип поезда ('C' - cargo, 'P' - passenger): \n"
             tr_type = gets.chomp
             @all_trains << Train.new(tr, tr_type)
-          when "3"
+          when "3" #Создать маршрут
             puts "Список станций:"
-            stations_list()
+            num_list(@all_stations)
             puts "Введите номер первой станции"
-            first_station = gets.chomp.to_i
-            if (1..@all_stations.size).include?(first_station)
+            first_station = must_be_int()
+            curr_station1 = @all_stations[first_station - 1]
+            if curr_station1
               puts "Введите номер последней станции"
-              last_station = gets.chomp.to_i
-                if (1..@all_stations.size).include?(last_station)
-                  @all_routes << Route.new(@all_stations[first_station - 1].name + ' - ' + @all_stations[last_station - 1].name, @all_stations[first_station - 1], @all_stations[last_station - 1])
-                else
-                  puts "Введена неверная станция"
-                end
+              last_station = must_be_int()
+              curr_station2 = @all_stations[last_station - 1]
+              if curr_station2
+                @all_routes << Route.new(curr_station1.name + ' - ' + curr_station2.name, curr_station1, curr_station2)
+              else
+                puts "Введена неверная станция"
+              end
             else
               puts "Введена неверная станция"
             end
@@ -124,15 +92,16 @@ class Menu
             puts "Список маршрутов"
             routes_list()
             puts "Введите номер маршрута"
-            route_number = gets.chomp.to_i
-            if (1..@all_routes.size).include?(route_number)            
-              curr_route = @all_routes[route_number - 1]
+            route_number = must_be_int()
+            curr_route = @all_routes[route_number - 1]
+            if curr_route
               puts "Список станций"
-              stations_list()
+              num_list(@all_stations)
               puts "Ведите  номер станции"
-              station_number = gets.chomp.to_i
-              if (1..@all_stations.size).include?(station_number)
-                curr_route.add_station(@all_stations[station_number - 1])
+              station_number = must_be_int()
+              curr_station = @all_stations[station_number - 1]
+              if curr_station
+                curr_route.add_station(curr_station)
               else
                 puts "Введена неверная станция"
               end
@@ -141,18 +110,19 @@ class Menu
             end
           when "2" #Удалить станцию из маршрута
             puts "Список маршрутов"
-            routes_list()
+            num_list(@all_routes)
             puts "Введите номер маршрута"
-            route_number = gets.chomp.to_i
-            if (1..@all_routes.size).include?(route_number)            
+            route_number = must_be_int()
+            curr_route = @all_routes[route_number - 1]
+            if curr_route
               curr_route = @all_routes[route_number - 1]
               puts "Список станций"
-              stations_list()
+              num_list(curr_route.stations_list)
               puts "Ведите номер станции"
-              station_number = gets.chomp.to_i
-              if (1..@all_stations.size).include?(station_number)
-                puts "#{curr_route}"
-                curr_route.del_station(@all_stations[station_number - 1])
+              station_number = must_be_int()
+              curr_station = curr_route.stations_list[station_number - 1]
+              if curr_station
+                curr_route.del_station(curr_station)
               else
                 puts "Введена неверная станция"
               end
@@ -161,10 +131,11 @@ class Menu
             end            
           when "3" #Добавить вагон в поезд
             puts "Список поездов"
-            trains_list()
+            num_list(@all_trains)
             puts "Введите номер поезда"
-            train_number = gets.chomp.to_i
-              if (1..@all_trains.size).include?(train_number) 
+            train_number = must_be_int()
+            curr_train = @all_trains[train_number - 1]
+              if curr_train
                 if all_trains[train_number - 1].type == "C"
                   all_trains[train_number - 1].add_wagon(WagonCargo.new)
                 else
@@ -175,28 +146,31 @@ class Menu
               end
           when "4" #Удалить вагон из поезда
             puts "Список поездов"
-            trains_list()
+            num_list(@all_trains)
             puts "Введите номер поезда"
-            train_number = gets.chomp.to_i
-            if (1..@all_trains.size).include?(train_number)
+            train_number = must_be_int()
+            curr_train = @all_trains[train_number - 1]
+            if curr_train
               all_trains[train_number - 1].del_wagon()
             else
               puts "Введен неверный поезд"
             end
           when "5" #Присвоить маршрут поезду
             puts "Список поездов"
-            trains_list()
+            num_list(@all_trains)
             puts "Введите номер поезда"
-            train_number = gets.chomp.to_i
-            if (1..@all_trains.size).include?(train_number)              
+            train_number = must_be_int()
+            curr_train = @all_trains[train_number - 1]
+            if curr_train
               puts "Список маршрутов"
-              routes_list()
+              num_list(@all_routes)
               puts "Введите маршрут"
-              route_number = gets.chomp.to_i
-              if (1..@all_routes.size).include?(route_number)            
-                curr_route = @all_routes[route_number - 1]
-                @all_trains[train_number - 1].add_route(curr_route)
-                curr_route.stations_list[0].add_train(@all_trains[train_number - 1])
+              route_number = must_be_int()
+              curr_route = @all_routes[route_number - 1]
+              if curr_route
+                curr_train.current_station.del_train(curr_train) if curr_train.route
+                curr_train.add_route(curr_route)
+                curr_route.stations_list.first.add_train(curr_train)
               else
                 puts "Введен неверный маршрут"
               end
@@ -205,42 +179,48 @@ class Menu
             end
           when "6" #Отменить маршрут у поезда
             puts "Список поездов"
-            trains_list()
+            num_list(@all_trains)
             puts "Введите номер поезда"
-            train_number = gets.chomp.to_i
-            if (1..@all_trains.size).include?(train_number) 
-              if @all_trains[train_number - 1].route.nil?
+            train_number = must_be_int()
+            curr_train = @all_trains[train_number - 1]
+            if curr_train
+              #puts "#{curr_train.name}"
+              #puts "#{curr_train.route.name}"
+              #puts "#{curr_train.route.class}"
+              if curr_train.route.nil? ###Вопрос - не работает с условием curr_train.route
                 puts "Поезду не присвоен маршрут"
               else
-                @all_trains[train_number - 1].del_route
+                curr_train.current_station.del_train(curr_train)
+                curr_train.del_route
               end
             else
               puts "Введен неверный поезд"
             end
           when "7" #Переместить поезд вперед по маршруту
             puts "Список поездов"
-            trains_list()
+            num_list(@all_trains)
             puts "Введите номер поезда"
-            train_number = gets.chomp.to_i
-            if (1..@all_trains.size).include?(train_number) 
-              if @all_trains[train_number - 1].route.nil?
+            train_number = must_be_int()
+            curr_train = @all_trains[train_number - 1] 
+            if curr_train
+              if curr_train.route.nil?
                 puts "Поезду не присвоен маршрут"
-              else ###
-                @all_trains[train_number - 1].move_train_forward_1(@all_trains[train_number - 1])
+              else
+                curr_train.move_train_forward
               end
             else
               puts "Введен неверный поезд"
             end
           when "8" #Переместить поезд назад по маршруту
             puts "Список поездов"
-            trains_list()
+            num_list(@all_trains)
             puts "Введите номер поезда"
-            train_number = gets.chomp.to_i
-            if (1..@all_trains.size).include?(train_number) 
-              if @all_trains[train_number - 1].route.nil?
-                puts "Поезду не присвоен маршрут"
-              else ###
-                @all_trains[train_number - 1].move_train_backward_1(@all_trains[train_number - 1])
+            train_number = must_be_int()
+            curr_train = @all_trains[train_number - 1]
+            if curr_train
+              if curr_train.route.nil?
+              else
+                curr_train.move_train_backward
               end
             else
               puts "Введен неверный поезд"
@@ -255,7 +235,7 @@ class Menu
           case choice
           when "0" then break
           when "1"
-            all_stations.each do |station|
+            @all_stations.each do |station|
               puts "#{station.name}"
               if station.trains_list.size == 0
                 puts "   На станции нет поездов"
@@ -266,9 +246,23 @@ class Menu
               end
             end
           when "2"
-            trains_list()
+            @all_trains.each do |train|
+              puts "#{train.name}"
+              puts "   Количество вагонов - #{train.wagons.size}"
+              puts "   Тип - #{train.type}"
+              if train.route
+                puts "   Маршрут - #{train.route.name}"
+              else
+                puts "   Маршрут не присвоен"
+              end
+            end
           when "3"
-            routes_list()
+            @all_routes.each do |route|
+              puts "#{route.name}"
+              route.stations_list.each do |station|
+                 puts "   #{station.name}"
+              end
+            end
           end
         end
       when "4"
@@ -285,5 +279,38 @@ class Menu
       end
     end
   end
-
 end
+
+private 
+
+attr_reader :all_stations, :all_trains, :all_wagons, :all_routes
+
+def num_list(arr)
+  counter = 0
+  arr.each do |i|
+    puts "#{(counter + 1).to_s + '. ' + i.name}"
+    counter += 1
+  end
+end
+
+def must_be_int()
+  i = "" #Почему без инициализации выдает ошибку что не знает переменной i???
+  loop do
+    i = gets.chomp
+    if i.to_i.to_s == i
+      break
+    else
+      puts "Введенное значение долно быть числом!"
+    end
+  end
+  i.to_i
+end
+
+def found_station_by_name(name)
+  counter = 0
+  @all_stations.each do |i|
+    break if i.name == name
+    counter += 1
+  end
+  @all_stations[counter]
+end   
