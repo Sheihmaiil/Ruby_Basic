@@ -28,7 +28,18 @@ class Train
     @@trains << self
   end
   
- #include Manufacturer
+  def self.find(name)
+     counter = 0
+     @@trains do each |i|
+       break if i.name = name
+       counter += 1
+     end
+     if counter < @@trains.size
+       @@trains[counter]
+     end
+  end
+  
+  #include Manufacturer
   
   def change_speed(speed) #изменение скорости может быть отрицательным
     if (@current_speed + speed).negative?

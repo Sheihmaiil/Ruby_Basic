@@ -36,6 +36,8 @@ class Menu
     "2. Список поездов",
     "3. Список маршутов/станций в маршруте",
     "4. Список вагонов в поезде",
+    "5. Возвращает все станции",
+    "6. Возвращает объект поезд по имени",
     "0. В предыдущее меню"
   ]
 
@@ -192,7 +194,12 @@ class Menu
           end
         end
       when"4" #Список вагонов в поезде
-        
+        wagons_list
+      when "5" #Возвращает все станции
+        puts Station.all
+      when "6" #Возвращает объект поезд по имени
+        curr_train = get_train
+        puts Train.find(curr_train)
       end
     end
   end
@@ -211,7 +218,7 @@ class Menu
     @all_trains[0].add_wagon
     @all_trains[0].add_wagon
     @all_trains[0].wagons[0].set_manufacturer("111")
-    @all_trains[0].wagons[0].set_manufacturer("222")
+    @all_trains[0].wagons[1].set_manufacturer("222")
   end
 
   def get_station(text = "Ведите номер станции")
@@ -373,6 +380,25 @@ class Menu
     else
       puts "Введен неверный поезд"
     end
+  end
+  
+  def wagons_list
+    curr_train = get_train
+      if curr_train
+        if curr_train.wagons.size > 0
+          counter = 0
+          curr_train.wagons.each do |i|
+            puts "Вагон номер #{counter}"
+            puts "Тип вагона - #{i.type}"
+            puts "Производитель вагона - #{i.manufacturer}"
+            counter += 1
+          end
+        else
+         puts "В поезде нет вагонов"
+       end
+      else
+        puts "Введен неверный поезд"
+      end
   end
 
 end
