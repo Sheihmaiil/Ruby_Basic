@@ -1,19 +1,9 @@
-module Manufacturer
-
-  def set_manufacturer(name)
-    self.manufacturer = name
-  end
-
-  def manufacturer
-    self.manufacturer
-  end
-
-  protected
-  attr_accessor :manufacturer
-end
+require_relative 'modules'
+require_relative 'InstanceCounter'
 
 class Train
   include Manufacturer
+  include InstanceCounter
   attr_accessor :name, :type, :current_station_index, :current_speed, :wagons, :manufacturer
   attr_reader :route
 
@@ -26,9 +16,13 @@ class Train
     @current_speed = 0
     @manufacturer = manufacturer
     @@trains << self
+    register_instance
   end
-  
- #include Manufacturer
+
+  def self.find(name)
+    result = @@trains.select { |i| i.name == name }
+    puts result.first.name unless result.empty?
+  end
   
   def change_speed(speed) #изменение скорости может быть отрицательным
     if (@current_speed + speed).negative?
@@ -42,13 +36,9 @@ class Train
     @current_speed = 0
   end
 
-  #def add_wagon(wagon)
-  #  @wagons << wagon if @current_speed.zero? && wagon.type == type
-  #end
-  
   def add_wagon
     if @current_speed.zero?
-       if type = "P"
+       if type == "P"
          @wagons << WagonPass.new
        else
          @wagons << WagonCargo.new
