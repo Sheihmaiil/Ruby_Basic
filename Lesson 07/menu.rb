@@ -169,33 +169,35 @@ class Menu
   end
   
   def objects_info
+    block = Proc.new {|train| puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"}
+    block2 = Proc.new {|wagon| puts "Номер вагона: . Производитель : #{wagon.manufacturer}. Тип: #{wagon.type}. Свободно мест: #{wagon.places - wagon.taken_places} из #{wagon.places}."}
     loop do
       puts OBJECTS_INFO
       choice = gets.chomp
       case choice
       when "0" then break
       when "1"
-        @all_stations.each do |station|
+        Station.all.each do |station|
           puts "#{station.name}"
           if station.trains_list.size == 0
             puts "   На станции нет поездов"
           else
-            station.trains_list.each do |train|
-              puts "   #{train.name}"
-            end
+            station.each_train(&block)
           end
         end
       when "2"
-        @all_trains.each do |train|
-          puts "#{train.name}"
-          puts "   Производитель - #{train.manufacturer}"
-          puts "   Количество вагонов - #{train.wagons.size}"
-          puts "   Тип - #{train.type}"
+       @all_trains.each do |train|
+#         puts "#{train.name}"
+#         puts "   Производитель - #{train.manufacturer}"
+#         puts "   Количество вагонов - #{train.wagons.size}"
+#         puts "   Тип - #{train.type}"
+          puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"
           if train.route
             puts "   Маршрут - #{train.route.name}"
           else
             puts "   Маршрут не присвоен"
           end
+          train.each_wagon(&block2)
         end
       when "3"
         @all_routes.each do |route|
@@ -230,6 +232,9 @@ class Menu
     @all_trains[0].add_wagon(10)
     @all_trains[0].wagons[0].set_manufacturer("111")
     @all_trains[0].wagons[1].set_manufacturer("222")
+    @all_trains[0].add_route(@all_routes[0])
+    @all_routes[0].stations_list.first.add_train(@all_trains[0])
+    
   end
 
   def get_station(text = "Ведите номер станции")

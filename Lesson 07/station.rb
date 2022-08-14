@@ -3,10 +3,10 @@ require_relative 'instancecounter'
 class Station
   include InstanceCounter
   attr_accessor :name
-  attr_reader :trains_list, :stations
+  attr_reader :trains_list, :stations, :block_trains
   
   @@stations = []
-
+  
   def self.all
     @@stations
   end
@@ -32,6 +32,14 @@ class Station
 
   def del_train(train)
     @trains_list.delete(train)
+  end
+  
+  def each_train
+    if block_given?
+      @trains_list.each {|x| yield x}
+    else
+      puts "Нет блока"
+    end  
   end
 
   private  

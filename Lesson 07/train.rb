@@ -90,6 +90,14 @@ class Train
   def current_station
     @route.stations_list[@current_station_index]
   end
+  
+  def each_wagon
+    if block_given?
+      @wagons.each {|x| yield x}
+    else
+      puts "Нет блока"
+    end  
+  end
 
   private
 
