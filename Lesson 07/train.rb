@@ -93,10 +93,10 @@ class Train
   
   def each_wagon
     if block_given?
-      @wagons.each {|x| yield x}
+      @wagons.each.with_index(1) {|wagon, index| yield(wagon, index)}
     else
       puts "Нет блока"
-    end  
+    end
   end
 
   private

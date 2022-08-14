@@ -169,8 +169,6 @@ class Menu
   end
   
   def objects_info
-    block = Proc.new {|train| puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"}
-    block2 = Proc.new {|wagon| puts "Номер вагона: . Производитель : #{wagon.manufacturer}. Тип: #{wagon.type}. Свободно мест: #{wagon.places - wagon.taken_places} из #{wagon.places}."}
     loop do
       puts OBJECTS_INFO
       choice = gets.chomp
@@ -182,22 +180,22 @@ class Menu
           if station.trains_list.size == 0
             puts "   На станции нет поездов"
           else
-            station.each_train(&block)
+            station.each_train do |train|
+              puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"
+            end
           end
         end
       when "2"
-       @all_trains.each do |train|
-#         puts "#{train.name}"
-#         puts "   Производитель - #{train.manufacturer}"
-#         puts "   Количество вагонов - #{train.wagons.size}"
-#         puts "   Тип - #{train.type}"
-          puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"
+        @all_trains.each do |train|
+          puts "Название поезда: #{train.name}."
+          train.each_wagon do |wagon, index|
+            puts "Номер вагона: #{index}. Производитель : #{wagon.manufacturer}. Тип: #{wagon.type}. Свободно мест: #{wagon.places - wagon.taken_places} из #{wagon.places}."
+          end
           if train.route
             puts "   Маршрут - #{train.route.name}"
           else
             puts "   Маршрут не присвоен"
           end
-          train.each_wagon(&block2)
         end
       when "3"
         @all_routes.each do |route|
