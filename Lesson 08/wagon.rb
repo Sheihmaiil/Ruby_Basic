@@ -9,7 +9,7 @@ class Wagon
 
   TYPE_FORMAT = /^[CP]{1}$/.freeze
 
-  def initialize(type, places)
+  def initialize(places, type)
     @type = type
     @places = places
     @manufacturer = ''
@@ -43,13 +43,13 @@ class Wagon
 end
 
 class WagonPass < Wagon
-  def initialize(type = 'P', places)
+  def initialize(places, type = 'P')
     super
   end
 end
 
 class WagonCargo < Wagon
-  def initialize(type = 'C', places)
+  def initialize(places, type = 'C')
     super
   end
 end

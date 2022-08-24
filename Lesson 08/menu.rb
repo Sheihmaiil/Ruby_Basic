@@ -155,7 +155,8 @@ class Menu
         puts 'На станции нет поездов'
       else
         station.each_train do |train|
-          puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"
+          puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}.
+            Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"
         end
       end
     end
@@ -165,13 +166,12 @@ class Menu
     @all_trains.each do |train|
       puts "Название поезда: #{train.name}."
       train.each_wagon do |wagon, index|
-        puts "Номер вагона: #{index}. Производитель : #{wagon.manufacturer}. Тип: #{wagon.type}. Свободно мест: #{wagon.places - wagon.taken_places} из #{wagon.places}."
+        puts "Номер вагона: #{index}. Производитель : #{wagon.manufacturer}.
+          Тип: #{wagon.type}. Свободно мест: #{wagon.places - wagon.taken_places} из #{wagon.places}."
       end
-      if train.route
-        puts "   Маршрут - #{train.route.name}"
-      else
-        puts '   Маршрут не присвоен'
-      end
+      is_train_route = train.route
+      puts '   Маршрут не присвоен' unless is_train_route
+      puts "   Маршрут - #{train.route.name}" if is_train_route
     end
   end
 
@@ -203,17 +203,9 @@ class Menu
     TEST_STATIONS.each { |i| @all_stations << Station.new(i) }
     TEST_TRAINS.each { |i| @all_trains << Train.new(i[0], i[1], i[2]) }
     @all_routes << Route.new('Казань - Москва', @all_stations[0], @all_stations[4])
-    [20, 10].each { |i| @all_trains[0].add_wagon(i) }
-    ['111', '222'].each.with_index(0) { |i, index| @all_trains[0].wagons[index].manufacturer_name(i) }
-    @all_trains[0].add_route(@all_routes[0])
-    @all_routes[0].stations_list.first.add_train(@all_trains[0])
   end
 
   def get_station(text = 'Ведите номер станции')
-    unless text == 'Введите номер последней станции'
-      puts 'Список станций'
-      num_list(@all_stations)
-    end
     puts text
     station_number = 0
     loop do
@@ -263,17 +255,11 @@ class Menu
     puts 'Список станций'
     num_list(curr_route.stations_list)
     puts 'Ведите номер станции'
-    station_number = 0
-    loop do
-      station_number = must_be_int
-      if (1..curr_route.stations_list.size).include?(station_number)
-        curr_station = curr_route.stations_list[station_number - 1]
-        curr_get_stroute.del_station(curr_station)
-        break
-      else
-        puts 'Введена неверная станция'
-      end
-    end
+    station_number = must_be_int
+    return puts 'Введена неверная станция' unless (1..curr_route.stations_list.size).include?(station_number)
+
+    curr_station = curr_route.stations_list[station_number - 1]
+    curr_route.del_station(curr_station)
   end
 
   def add_wagon_to_train
@@ -356,19 +342,23 @@ class Menu
     end
   end
 
+  def fill_cargo_train(train, wagon_number)
+    puts 'Введите требуемое количество места'
+    train.wagons[wagon_number - 1].take_place(must_be_int)
+  end
+
+  def fill_pass_train(train, wagon_number)
+    train.wagons[wagon_number - 1].take_place(1)
+  end
+
   def take_place_in_wagon
     curr_train = select_train
-    return puts 'В поезде нет вагонов' unless curr_train.wagons.size.positive?
+    qqq = curr_train.wagons.size
+    return puts 'В поезде нет вагонов' unless qqq.positive?
 
-    puts "В поезде #{curr_train.wagons.size} вагонов. Выберите номер вагона: \n"
+    puts "В поезде #{qqq} вагонов. Выберите номер вагона: \n"
     wagon_number = must_be_int
-    if curr_train.type == 'P'
-      result = 1
-    else
-      puts 'Введите требуемое количество места'
-      result = must_be_int
-    end
-    curr_train.wagons[wagon_number - 1].take_place(result)
+    curr_train.type == 'P' ? fill_pass_train(curr_train, wagon_number) : fill_cargo_train(curr_train, wagon_number)
   rescue RuntimeError => e
     puts e
   end
