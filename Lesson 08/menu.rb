@@ -41,6 +41,21 @@ class Menu
     '0. В предыдущее меню'
   ].freeze
 
+  TEST_STATIONS = [
+    'Казань',
+    'Зеленый Дол',
+    'Канаш',
+    'Муром',
+    'Москва'
+  ].freeze
+
+  TEST_TRAINS = [
+    ['Тат-11', 'P', ''],
+    ['Пас-22', 'P', ''],
+    ['Гру-11', 'C', ''],
+    ['Гру-22', 'C', '']
+  ].freeze
+
   def initialize
     @all_stations = []
     @all_trains = []
@@ -50,8 +65,7 @@ class Menu
   def start
     loop do
       puts MAIN_MENU
-      choice = gets.chomp
-      case choice
+      case gets.chomp
       when '0' then break
       when '1' then create_objects
       when '2' then manage_objects
@@ -72,50 +86,44 @@ class Menu
   def must_be_int
     loop do
       result = Integer(gets.chomp)
-      puts "Это идиотизм но => #{result}"
+
       return result
     rescue ArgumentError
       puts 'Введенное значение должно быть числом!'
     end
   end
 
+  def create_station
+    print "Введите название станции: \n"
+    @all_stations << Station.new(gets.chomp)
+  rescue RuntimeError => e
+    puts e
+  end
+
+  def create_train
+    print "Введите название поезда: \n"
+    tr = gets.chomp
+    print "Задайте тип поезда ('C' - cargo, 'P' - passenger): \n"
+    tr_type = gets.chomp
+    @all_trains << Train.new(tr, tr_type, '')
+  rescue RuntimeError => e
+    puts e
+  end
+
+  def create_route
+    curr_station1 = get_station('Введите номер первой станции')
+    curr_station2 = get_station('Введите номер последней станции')
+    @all_routes << Route.new("#{curr_station1.name} - #{curr_station2.name}", curr_station1, curr_station2)
+  end
+
   def create_objects
     loop do
       puts CREATE_MENU
-      choice = gets.chomp
-      case choice
+      case gets.chomp
       when '0' then break
-      when '1' # Создать станцию
-        print "Введите название станции: \n"
-        st = gets.chomp
-        begin
-          @all_stations << Station.new(st)
-        rescue RuntimeError => e
-          puts e
-        end
-      when '2' # Создать поезд
-        print "Введите название поезда: \n"
-        tr = gets.chomp
-        print "Задайте тип поезда ('C' - cargo, 'P' - passenger): \n"
-        tr_type = gets.chomp
-        begin
-          @all_trains << Train.new(tr, tr_type, '')
-        rescue RuntimeError => e
-          puts e
-        end
-      when '3' # Создать маршрут
-        curr_station1 = get_station('Введите номер первой станции')
-        puts "curr_station1 => #{curr_station1.name}"
-        if curr_station1
-          curr_station2 = get_station('Введите номер последней станции')
-          if curr_station2
-            @all_routes << Route.new("#{curr_station1.name} - #{curr_station2.name}", curr_station1, curr_station2)
-          else
-            puts 'Введена неверная станция'
-          end
-        else
-          puts 'Введена неверная станция'
-        end
+      when '1' then create_station # Создать станцию
+      when '2' then create_train # Создать поезд
+      when '3' then create_route # Создать маршрут
       end
     end
   end
@@ -123,8 +131,7 @@ class Menu
   def manage_objects
     loop do
       puts EDIT_OBJECTS
-      choice = gets.chomp
-      case choice
+      case gets.chomp
       when '0' then break
       when '1' then add_station_to_route # Добавить станцию в маршрут
       when '2' then del_station_from_route # Удалить станцию из маршрута
@@ -141,76 +148,68 @@ class Menu
     end
   end
 
-  def objects_info
-    loop do
-      puts OBJECTS_INFO
-      choice = gets.chomp
-      case choice
-      when '0' then break
-      when '1'
-        Station.all.each do |station|
-          puts station.name.to_s
-          if station.trains_list.size.positive?
-            puts '   На станции нет поездов'
-          else
-            station.each_train do |train|
-              puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"
-            end
-          end
-        end
-      when '2'
-        @all_trains.each do |train|
-          puts "Название поезда: #{train.name}."
-          train.each_wagon do |wagon, index|
-            puts "Номер вагона: #{index}. Производитель : #{wagon.manufacturer}. Тип: #{wagon.type}. Свободно мест: #{wagon.places - wagon.taken_places} из #{wagon.places}."
-          end
-          if train.route
-            puts "   Маршрут - #{train.route.name}"
-          else
-            puts '   Маршрут не присвоен'
-          end
-        end
-      when '3'
-        @all_routes.each do |route|
-          puts route.name.to_s
-          route.stations_list.each do |station|
-            puts "   #{station.name}"
-          end
-        end
-      when '4' # Список вагонов в поезде
-        wagons_list
-      when '5' # Возвращает все станции
-        puts Station.all
-      when '6' # Возвращает объект поезд по имени
-        curr_train = select_train
-        if curr_train
-          Train.find(curr_train.name)
+  def stations_trains_info
+    Station.all.each do |station|
+      puts station.name.to_s
+      if station.trains_list.size.positive?
+        puts 'На станции нет поездов'
+      else
+        station.each_train do |train|
+          puts "Название поезда: #{train.name}. Производитель: #{train.manufacturer}. Тип: #{train.type}. Вагонов в поезде: #{train.wagons.size}"
         end
       end
     end
   end
 
+  def trains_info
+    @all_trains.each do |train|
+      puts "Название поезда: #{train.name}."
+      train.each_wagon do |wagon, index|
+        puts "Номер вагона: #{index}. Производитель : #{wagon.manufacturer}. Тип: #{wagon.type}. Свободно мест: #{wagon.places - wagon.taken_places} из #{wagon.places}."
+      end
+      if train.route
+        puts "   Маршрут - #{train.route.name}"
+      else
+        puts '   Маршрут не присвоен'
+      end
+    end
+  end
+
+  def routes_stations_list
+    @all_routes.each do |route|
+      puts route.name.to_s
+      route.stations_list.each do |station|
+        puts "   #{station.name}"
+      end
+    end
+  end
+
+  def objects_info
+    loop do
+      puts OBJECTS_INFO
+      case gets.chomp
+      when '0' then break
+      when '1' then stations_trains_info # Список станций/поездов на станциях
+      when '2' then trains_info # Список поездов
+      when '3' then routes_stations_list # Список маршутов/станций в маршруте
+      when '4' then wagons_list # Список вагонов в поезде
+      when '5' then puts Station.all # Возвращает все станции
+      when '6' then Train.find(select_train.name) # Возвращает объект поезд по имени
+      end
+    end
+  end
+
   def test_objects
-    @all_stations << Station.new('Казань')
-    @all_stations << Station.new('Зеленый Дол')
-    @all_stations << Station.new('Канаш')
-    @all_stations << Station.new('Муром')
-    @all_stations << Station.new('Москва')
-    @all_trains << Train.new('Тат-11', 'P', '')
-    @all_trains << Train.new('Пас-22', 'P', '')
-    @all_trains << Train.new('Гру-11', 'C', '')
-    @all_trains << Train.new('Гру-22', 'C', '')
+    TEST_STATIONS.each { |i| @all_stations << Station.new(i) }
+    TEST_TRAINS.each { |i| @all_trains << Train.new(i[0], i[1], i[2]) }
     @all_routes << Route.new('Казань - Москва', @all_stations[0], @all_stations[4])
-    @all_trains[0].add_wagon(20)
-    @all_trains[0].add_wagon(10)
-    @all_trains[0].wagons[0].manufacturer_name('111')
-    @all_trains[0].wagons[1].manufacturer_name('222')
+    [20, 10].each { |i| @all_trains[0].add_wagon(i) }
+    ['111', '222'].each.with_index(0) { |i, index| @all_trains[0].wagons[index].manufacturer_name(i) }
     @all_trains[0].add_route(@all_routes[0])
     @all_routes[0].stations_list.first.add_train(@all_trains[0])
   end
 
   def get_station(text = 'Ведите номер станции')
-    puts "Get Station"
     unless text == 'Введите номер последней станции'
       puts 'Список станций'
       num_list(@all_stations)
@@ -219,9 +218,8 @@ class Menu
     station_number = 0
     loop do
       station_number = must_be_int
-      if (1..@all_stations.size).include?(station_number)
-        break
-      end
+
+      break if (1..@all_stations.size).include?(station_number)
     end
     @all_stations[station_number - 1]
   end
@@ -233,11 +231,9 @@ class Menu
     route_number = 0
     loop do
       route_number = must_be_int
-      if (1..@all_routes.size).include?(route_number)
-        break
-      else
-        puts 'Введен неверный маршрут'
-      end
+      break if (1..@all_routes.size).include?(route_number)
+
+      puts 'Введен неверный маршрут'
     end
     @all_routes[route_number - 1]
   end
@@ -249,11 +245,9 @@ class Menu
     train_number = 0
     loop do
       train_number = must_be_int
-      if (1..@all_trains.size).include?(train_number)
-        break
-      else
-        puts 'Введен неверный поезд'
-      end
+      break if (1..@all_trains.size).include?(train_number)
+
+      puts 'Введен неверный поезд'
     end
     @all_trains[train_number - 1]
   end
@@ -274,7 +268,7 @@ class Menu
       station_number = must_be_int
       if (1..curr_route.stations_list.size).include?(station_number)
         curr_station = curr_route.stations_list[station_number - 1]
-        curr_route.del_station(curr_station)
+        curr_get_stroute.del_station(curr_station)
         break
       else
         puts 'Введена неверная станция'
@@ -286,11 +280,9 @@ class Menu
     curr_train = select_train
     puts 'Введите количество мест:'
     result = must_be_int
-    begin
-      curr_train.add_wagon(result)
-    rescue RuntimeError => e
-      puts e
-    end
+    curr_train.add_wagon(result)
+  rescue RuntimeError => e
+    puts e
   end
 
   def del_wagon_from_train
@@ -308,7 +300,7 @@ class Menu
 
   def del_route_from_train
     curr_train = select_train
-    if curr_train.route.nil?
+    if curr_tget_strain.route.nil?
       puts 'Поезду не присвоен маршрут'
     else
       curr_train.current_station.del_train(curr_train)
@@ -343,54 +335,41 @@ class Menu
 
   def add_manufacturer_to_wagon
     curr_train = select_train
-    if curr_train.wagons.size.positive?
-      puts "В поезде #{curr_train.wagons.size} вагонов. \n"
-      puts 'Выберите номер вагона: '
-      wagon_number = must_be_int
-      # Нужна проверка на 0
-      puts "Введите наименование производителя вагона: \n"
-      manufacturer = gets.chomp
-      curr_train.wagons[wagon_number - 1].manufacturer_name(manufacturer)
-    else
-      puts 'В поезде нет вагонов'
-    end
+    return puts 'В поезде нет вагонов' unless curr_train.wagons.size.positive?
+
+    puts "В поезде #{curr_train.wagons.size} вагонов. Выберите номер вагона:"
+    wagon_number = must_be_int
+    puts "Введите наименование производителя вагона: \n"
+    manufacturer = gets.chomp
+    curr_train.wagons[wagon_number - 1].manufacturer_name(manufacturer)
   end
 
   def wagons_list
     curr_train = select_train
-    if curr_train.wagons.size.positive?
-      curr_train.wagons.each.with_index(1) do |i, index|
-        puts "Вагон номер #{index}"
-        puts "Тип вагона - #{i.type}"
-        puts "Производитель вагона - #{i.manufacturer}"
-        puts "Всего1 мест в вагоне - #{i.places} из них свободно - #{i.empty_places}"
-      end
-    else
-      puts 'В поезде нет вагонов'
+    return puts 'В поезде нет вагонов' unless curr_train.wagons.size.positive?
+
+    curr_train.wagons.each.with_index(1) do |i, index|
+      puts "Вагон номер #{index}"
+      puts "Тип вагона - #{i.type}"
+      puts "Производитель вагона - #{i.manufacturer}"
+      puts "Всего мест в вагоне - #{i.places} из них свободно - #{i.empty_places}"
     end
   end
 
   def take_place_in_wagon
     curr_train = select_train
-    if curr_train.wagons.size.positive?
-      puts "В поезде #{curr_train.wagons.size} вагонов. \n"
-      puts 'Выберите номер вагона: '
-      wagon_number = must_be_int
-      if curr_train.type == 'P'
-        result = 1
-      else
-        puts 'Введите требуемое количество места'
-        result = must_be_int
-      end
+    return puts 'В поезде нет вагонов' unless curr_train.wagons.size.positive?
 
-      begin
-        curr_train.wagons[wagon_number - 1].take_place(result)
-      rescue RuntimeError => e
-        puts e
-      end
-
+    puts "В поезде #{curr_train.wagons.size} вагонов. Выберите номер вагона: \n"
+    wagon_number = must_be_int
+    if curr_train.type == 'P'
+      result = 1
     else
-      puts 'В поезде нет вагонов'
+      puts 'Введите требуемое количество места'
+      result = must_be_int
     end
+    curr_train.wagons[wagon_number - 1].take_place(result)
+  rescue RuntimeError => e
+    puts e
   end
 end
