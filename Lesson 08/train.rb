@@ -12,17 +12,12 @@ class Train
   NAME_FORMAT = /^[а-яa-z0-9]{3}-?[а-яa-z0-9]{2}$/i.freeze
   TYPE_FORMAT = /^[CP]{1}$/.freeze
 
-  @@trains = []
-
   def initialize(name, type, manufacturer)
     @name = name
     @type = type # 'C' - cargo, 'P' - passenger
     @wagons = []
     @current_speed = 0
     @manufacturer = manufacturer
-    validate!
-    @@trains << self
-    register_instance
   end
 
   def valid?
@@ -30,11 +25,6 @@ class Train
     true
   rescue RuntimeError
     false
-  end
-
-  def self.find(name)
-    result = @@trains.select { |i| i.name == name }
-    result.first
   end
 
   def change_speed(speed)

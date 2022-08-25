@@ -1,0 +1,20 @@
+Encoding:
+  Enabled: false
+
+LineLength:
+  Enabled: true
+  Max: 120
+
+MethodLength:
+  Enabled: true
+  Max: 50
+
+Documentation:
+  Enabled: false
+
+ClassLength:
+  Enabled: true
+  Max: 400
+
+FrozenStringLiteralComment:
+  Enabled: false

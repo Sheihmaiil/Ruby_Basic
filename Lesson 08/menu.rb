@@ -128,6 +128,8 @@ class Menu
     end
   end
 
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/CyclomaticComplexity
   def manage_objects
     loop do
       puts EDIT_OBJECTS
@@ -147,9 +149,11 @@ class Menu
       end
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
+  # rubocop:enable Metrics/AbcSize
 
   def stations_trains_info
-    Station.all.each do |station|
+    @all_stations.each do |station|
       puts station.name.to_s
       if station.trains_list.size.positive?
         puts 'На станции нет поездов'
@@ -184,6 +188,13 @@ class Menu
     end
   end
 
+  def ret_train_by_name
+    train = select_train
+    result = @all_trains.select { |i| i.name == train.name }
+    result.first
+  end
+
+  # rubocop:disable Metrics/CyclomaticComplexity
   def objects_info
     loop do
       puts OBJECTS_INFO
@@ -193,11 +204,12 @@ class Menu
       when '2' then trains_info # Список поездов
       when '3' then routes_stations_list # Список маршутов/станций в маршруте
       when '4' then wagons_list # Список вагонов в поезде
-      when '5' then puts Station.all # Возвращает все станции
-      when '6' then Train.find(select_train.name) # Возвращает объект поезд по имени
+      when '5' then puts @all_stations # Возвращает все станции
+      when '6' then ret_train_by_name # Возвращает объект поезд по имени
       end
     end
   end
+  # rubocop:enable Metrics/CyclomaticComplexity
 
   def test_objects
     TEST_STATIONS.each { |i| @all_stations << Station.new(i) }

@@ -11,5 +11,5 @@ module Manufacturer
 
   protected
 
-  attr_accessor :manufacturer
+  attr_writer :manufacturer
 end

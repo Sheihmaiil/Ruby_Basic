@@ -7,17 +7,9 @@ class Station
   attr_accessor :name
   attr_reader :trains_list, :stations, :block_trains
 
-  @@stations = []
-
-  def self.all
-    @@stations
-  end
-
   def initialize(station_name)
     @name = station_name
     @trains_list = []
-    @@stations << self
-    register_instance
     validate!
   end
 
