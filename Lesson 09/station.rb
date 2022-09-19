@@ -14,18 +14,10 @@ class Station
   validate :name, :presence
 
   def initialize(station_name)
-    puts "station_name => #{station_name}"
     @name = station_name
     @trains_list = []
     validate!
   end
-
-#  def valid?
-#    validate!
-#    true
-#  rescue RuntimeError
-#    false
-#  end
 
   def add_train(train)
     @trains_list << train
@@ -54,10 +46,4 @@ class Station
   def trains_qty_by_type(train_type)
     trains_list_by_type(train_type).count
   end
-
-  protected
-
-#  def validate!
-#    raise 'Имя станции не может быть пустым' if @name == ''
-#  end
 end

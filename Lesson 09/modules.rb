@@ -66,9 +66,7 @@ module Validation
   module InstanceMethods
     def validate!
       params = self.class.validations
-      puts params
       params.each do |x|
-        puts "validate_#{x[1]}"
         self.send("validate_#{x[1]}", x[0], x[2])
       end
     end
@@ -83,17 +81,20 @@ module Validation
     end
     
     def validate_presence(var_name, param = nil)
-      raise "Имя не может быть пустым или nil" if var_name.nil? || var_name.empty?    
+      local_var_name = instance_variable_get("@#{var_name}".to_sym)
+      puts "var_name => #{var_name}"
+      puts "local_var_name => #{local_var_name}"
+      raise "Имя не может быть пустым или nil" if local_var_name.nil? || local_var_name.empty?    
     end
     
     def validate_format(var_name, param = nil)
-#      raise 'Ошибка формата' unless var_name =~ param
+      local_var_name = instance_variable_get("@#{var_name}".to_sym)
+      raise 'Ошибка формата' unless local_var_name =~ param
     end
     
     def validate_type(var_name, param = nil)
-      puts "param => #{param}"
-      puts "var_name => #{var_name}"
-      raise 'Ошибка класса' unless var_name.is_a?param
+      local_var_name = instance_variable_get("@#{var_name}".to_sym)
+      raise 'Ошибка класса' unless local_var_name.is_a?param
     end 
     
   end

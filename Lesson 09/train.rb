@@ -6,25 +6,26 @@ require_relative 'instancecounter'
 class Train
   include Manufacturer
   include InstanceCounter
+  include Validation
+  extend Accessors
+  
   attr_accessor :name, :type, :current_station_index, :current_speed, :wagons, :manufacturer
   attr_reader :route
+  strong_attr_accessor :current_speed, Integer
 
   NAME_FORMAT = /^[а-яa-z0-9]{3}-?[а-яa-z0-9]{2}$/i.freeze
   TYPE_FORMAT = /^[CP]{1}$/.freeze
+  
+  validate :name, :presence
+  validate :name, :format, NAME_FORMAT
 
   def initialize(name, type, manufacturer)
     @name = name
     @type = type # 'C' - cargo, 'P' - passenger
     @wagons = []
-    @current_speed = 0
+    @current_speed = "a"
     @manufacturer = manufacturer
-  end
-
-  def valid?
     validate!
-    true
-  rescue RuntimeError
-    false
   end
 
   def change_speed(speed)
@@ -103,13 +104,5 @@ class Train
     return if @current_station_index + 1 == @route.stations_list.size
 
     @route.stations_list[@current_station_index + 1]
-  end
-
-  protected
-
-  def validate!
-    raise 'Формат имени поезда три цифры или буквы, опциональный дефис и две цифры или буквы' unless name =~ NAME_FORMAT
-    raise 'Тип поезда должен быть C - Cargo или P - Passenger' unless type =~ TYPE_FORMAT
-    raise 'Скорость поезда не может быть отрицательной' if current_speed.negative?
   end
 end
