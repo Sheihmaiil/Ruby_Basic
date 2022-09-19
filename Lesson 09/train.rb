@@ -23,7 +23,7 @@ class Train
     @name = name
     @type = type # 'C' - cargo, 'P' - passenger
     @wagons = []
-    @current_speed = "a"
+    @current_speed = 0
     @manufacturer = manufacturer
     validate!
   end

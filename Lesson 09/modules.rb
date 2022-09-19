@@ -82,8 +82,6 @@ module Validation
     
     def validate_presence(var_name, param = nil)
       local_var_name = instance_variable_get("@#{var_name}".to_sym)
-      puts "var_name => #{var_name}"
-      puts "local_var_name => #{local_var_name}"
       raise "Имя не может быть пустым или nil" if local_var_name.nil? || local_var_name.empty?    
     end
     
